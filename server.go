@@ -3,6 +3,7 @@ package grpctools
 import (
 	"net"
 
+	balancepb "github.com/bsm/grpclb/grpclb_backend_v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
@@ -17,13 +18,16 @@ type Server struct {
 }
 
 // NewServer returns a new Server instance.
-func NewServer(name string) *Server {
+func NewServer(name string, lr balancepb.LoadReportServer) *Server {
 	srv := &Server{
 		Server: grpc.NewServer(),
 		name:   name,
 		health: health.NewHealthServer(),
 	}
 	healthpb.RegisterHealthServer(srv.Server, srv.health)
+	if lr != nil {
+		balancepb.RegisterLoadReportServer(srv.Server, lr)
+	}
 	return srv
 }
 
