@@ -2,32 +2,39 @@ package grpctools
 
 import (
 	"net"
+	"time"
 
 	balancepb "github.com/bsm/grpclb/grpclb_backend_v1"
+	"github.com/bsm/grpclb/load"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 )
 
+type LoadReportMeter interface {
+	Increment(int64)
+}
+
 // Server embeds a standard grpc Server with a healthcheck
 type Server struct {
 	*grpc.Server
+	LoadReportMeter
 
 	name   string
 	health *health.HealthServer
 }
 
 // NewServer returns a new Server instance.
-func NewServer(name string, lr balancepb.LoadReportServer) *Server {
+func NewServer(name string) *Server {
+	lrs := load.NewRateReporter(time.Minute)
 	srv := &Server{
-		Server: grpc.NewServer(),
-		name:   name,
-		health: health.NewHealthServer(),
+		Server:          grpc.NewServer(),
+		LoadReportMeter: lrs,
+		name:            name,
+		health:          health.NewHealthServer(),
 	}
 	healthpb.RegisterHealthServer(srv.Server, srv.health)
-	if lr != nil {
-		balancepb.RegisterLoadReportServer(srv.Server, lr)
-	}
+	balancepb.RegisterLoadReportServer(srv.Server, lrs)
 	return srv
 }
 
