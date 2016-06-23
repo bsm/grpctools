@@ -11,7 +11,7 @@ var _ = Describe("Server", func() {
 	var subject *Server
 
 	BeforeEach(func() {
-		subject = NewServer("test")
+		subject = NewServer("test", "127.0.0.1:8080")
 	})
 
 	AfterEach(func() {

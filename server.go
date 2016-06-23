@@ -21,16 +21,18 @@ type Server struct {
 	LoadReportMeter
 
 	name   string
+	addr   string
 	health *health.HealthServer
 }
 
 // NewServer returns a new Server instance.
-func NewServer(name string) *Server {
+func NewServer(name string, addr string) *Server {
 	lrs := load.NewRateReporter(time.Minute)
 	srv := &Server{
 		Server:          grpc.NewServer(),
 		LoadReportMeter: lrs,
 		name:            name,
+		addr:            addr,
 		health:          health.NewHealthServer(),
 	}
 	healthpb.RegisterHealthServer(srv.Server, srv.health)
@@ -39,8 +41,8 @@ func NewServer(name string) *Server {
 }
 
 // ListenAndServe starts the server (blocking).
-func (s *Server) ListenAndServe(addr string) error {
-	lis, err := net.Listen("tcp", addr)
+func (s *Server) ListenAndServe() error {
+	lis, err := net.Listen("tcp", s.addr)
 	if err != nil {
 		return err
 	}
