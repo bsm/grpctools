@@ -22,7 +22,7 @@ type Server struct {
 
 	name   string
 	addr   string
-	health *health.HealthServer
+	health *health.Server
 }
 
 // NewServer returns a new Server instance.
@@ -33,7 +33,7 @@ func NewServer(name string, addr string) *Server {
 		LoadReportMeter: lrs,
 		name:            name,
 		addr:            addr,
-		health:          health.NewHealthServer(),
+		health:          health.NewServer(),
 	}
 	healthpb.RegisterHealthServer(srv.Server, srv.health)
 	balancepb.RegisterLoadReportServer(srv.Server, lrs)
