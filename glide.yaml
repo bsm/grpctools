@@ -1,0 +1,19 @@
+package: github.com/bsm/grpctools
+import:
+- package: github.com/bsm/grpclb
+  version: ^0.4.0
+  subpackages:
+  - grpclb_backend_v1
+  - load
+- package: golang.org/x/net
+  subpackages:
+  - context
+- package: google.golang.org/grpc
+  version: ^1.0.5
+  subpackages:
+  - grpclog
+  - health
+  - health/grpc_health_v1
+testImport:
+- package: github.com/onsi/ginkgo
+- package: github.com/onsi/gomega

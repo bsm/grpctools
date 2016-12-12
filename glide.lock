@@ -1,0 +1,77 @@
+hash: 4bf180a9a4d4db82f8d3fad736a05fa6cb734550f82c842d124efa2a804c80b1
+updated: 2016-12-12T16:46:20.409449662Z
+imports:
+- name: github.com/bsm/grpclb
+  version: 0ef6679f97055d5652ec817e77e2aff325a9e051
+  subpackages:
+  - grpclb_backend_v1
+  - load
+- name: github.com/golang/protobuf
+  version: 8ee79997227bf9b34611aee7946ae64735e6fd93
+  subpackages:
+  - proto
+- name: golang.org/x/net
+  version: b1a2d6e8c8b5fc8f601ead62536f02a8e1b6217d
+  subpackages:
+  - context
+  - http2
+  - http2/hpack
+  - idna
+  - internal/timeseries
+  - lex/httplex
+  - trace
+- name: google.golang.org/grpc
+  version: 708a7f9f3283aa2d4f6132d287d78683babe55c8
+  subpackages:
+  - codes
+  - credentials
+  - grpclog
+  - health
+  - health/grpc_health_v1
+  - internal
+  - metadata
+  - naming
+  - peer
+  - stats
+  - tap
+  - transport
+testImports:
+- name: github.com/onsi/ginkgo
+  version: 00054c0bb96fc880d4e0be1b90937fad438c5290
+  subpackages:
+  - config
+  - internal/codelocation
+  - internal/containernode
+  - internal/failer
+  - internal/leafnodes
+  - internal/remote
+  - internal/spec
+  - internal/specrunner
+  - internal/suite
+  - internal/testingtproxy
+  - internal/writer
+  - reporters
+  - reporters/stenographer
+  - reporters/stenographer/support/go-colorable
+  - reporters/stenographer/support/go-isatty
+  - types
+- name: github.com/onsi/gomega
+  version: f1f0f388b31eca4e2cbe7a6dd8a3a1dfddda5b1c
+  subpackages:
+  - format
+  - internal/assertion
+  - internal/asyncassertion
+  - internal/oraclematcher
+  - internal/testingtsupport
+  - matchers
+  - matchers/support/goraph/bipartitegraph
+  - matchers/support/goraph/edge
+  - matchers/support/goraph/node
+  - matchers/support/goraph/util
+  - types
+- name: golang.org/x/sys
+  version: 478fcf54317e52ab69f40bb4c7a1520288d7f7ea
+  subpackages:
+  - unix
+- name: gopkg.in/yaml.v2
+  version: a5b47d31c556af34a302ce5d659e6fea44d90de0

@@ -1,18 +1,13 @@
+PKG=$(shell glide nv)
 VERSION=0.1.2
 
-default: vet errcheck test
-
-deps:
-	go get -t ./...
+default: vet test
 
 test:
-	go test ./...
+	go test $(PKG)
 
 vet:
-	go tool vet -composites=false $(wildcard *.go)
-
-errcheck:
-	errcheck -ignoretests -ignore 'Close' $$(go list ./...)
+	go vet $(PKG)
 
 pkg-deps:
 	go get github.com/mitchellh/gox
