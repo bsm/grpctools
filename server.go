@@ -26,10 +26,10 @@ type Server struct {
 }
 
 // NewServer returns a new Server instance.
-func NewServer(name string, addr string) *Server {
+func NewServer(name string, addr string, opts ...grpc.ServerOption) *Server {
 	lrs := load.NewRateReporter(time.Minute)
 	srv := &Server{
-		Server:          grpc.NewServer(),
+		Server:          grpc.NewServer(opts...),
 		LoadReportMeter: lrs,
 		name:            name,
 		addr:            addr,

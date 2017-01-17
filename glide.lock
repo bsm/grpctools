@@ -1,17 +1,17 @@
 hash: 4bf180a9a4d4db82f8d3fad736a05fa6cb734550f82c842d124efa2a804c80b1
-updated: 2016-12-12T16:46:20.409449662Z
+updated: 2017-01-17T16:44:24.855363799Z
 imports:
 - name: github.com/bsm/grpclb
-  version: 0ef6679f97055d5652ec817e77e2aff325a9e051
+  version: c277e0d9993f2df81a29b2fcc219b35530f5342c
   subpackages:
   - grpclb_backend_v1
   - load
 - name: github.com/golang/protobuf
-  version: 8ee79997227bf9b34611aee7946ae64735e6fd93
+  version: 98fa357170587e470c5f27d3c3ea0947b71eb455
   subpackages:
   - proto
 - name: golang.org/x/net
-  version: b1a2d6e8c8b5fc8f601ead62536f02a8e1b6217d
+  version: c46f265c325130a7a6c7b27db8c6fe14b64f1a68
   subpackages:
   - context
   - http2
@@ -37,7 +37,7 @@ imports:
   - transport
 testImports:
 - name: github.com/onsi/ginkgo
-  version: 00054c0bb96fc880d4e0be1b90937fad438c5290
+  version: a8ccd817611666211fdf6e6a752174a0db8374a8
   subpackages:
   - config
   - internal/codelocation
@@ -56,7 +56,7 @@ testImports:
   - reporters/stenographer/support/go-isatty
   - types
 - name: github.com/onsi/gomega
-  version: f1f0f388b31eca4e2cbe7a6dd8a3a1dfddda5b1c
+  version: 7e2072f716a912a29b2dfa54398faf096a9909e3
   subpackages:
   - format
   - internal/assertion
@@ -70,7 +70,7 @@ testImports:
   - matchers/support/goraph/util
   - types
 - name: golang.org/x/sys
-  version: 478fcf54317e52ab69f40bb4c7a1520288d7f7ea
+  version: c200b10b5d5e122be351b67af224adc6128af5bf
   subpackages:
   - unix
 - name: gopkg.in/yaml.v2
