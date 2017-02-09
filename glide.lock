@@ -1,5 +1,5 @@
 hash: 4bf180a9a4d4db82f8d3fad736a05fa6cb734550f82c842d124efa2a804c80b1
-updated: 2017-01-25T11:00:37.915598155Z
+updated: 2017-02-09T11:03:39.616776239Z
 imports:
 - name: github.com/bsm/grpclb
   version: c277e0d9993f2df81a29b2fcc219b35530f5342c
@@ -11,7 +11,7 @@ imports:
   subpackages:
   - proto
 - name: golang.org/x/net
-  version: f2499483f923065a842d38eb4c7f1927e6fc6e6d
+  version: 236b8f043b920452504e263bc21d354427127473
   subpackages:
   - context
   - http2
@@ -37,7 +37,7 @@ imports:
   - transport
 testImports:
 - name: github.com/onsi/ginkgo
-  version: a23f924ce96d61f963fb6219b8ff069d8d768cc2
+  version: bb93381d543b0e5725244abe752214a110791d01
   subpackages:
   - config
   - internal/codelocation
@@ -70,8 +70,8 @@ testImports:
   - matchers/support/goraph/util
   - types
 - name: golang.org/x/sys
-  version: d75a52659825e75fff6158388dddc6a5b04f9ba5
+  version: 7a6e5648d140666db5d920909e082ca00a87ba2c
   subpackages:
   - unix
 - name: gopkg.in/yaml.v2
-  version: 14227de293ca979cf205cd88769fe71ed96a97e2
+  version: a3f3340b5840cee44f372bddb5880fcbc419b46a
