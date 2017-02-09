@@ -1,5 +1,11 @@
+SRC=$(shell find . -name '*.go' -not -path '*vendor*')
 PKG=$(shell glide nv)
-VERSION=0.1.2
+
+TARGET_PKG=$(patsubst cmd/%/main.go,bin/%,$(wildcard cmd/*/main.go))
+TARGET_OS=linux darwin
+TARGET_ARCH=amd64 386
+TARGETS=$(foreach pkg,$(TARGET_PKG),$(foreach os,$(TARGET_OS),$(foreach arch,$(TARGET_ARCH),$(pkg)-$(os)-$(arch))))
+ARCHIVES=$(foreach t,$(TARGETS),$(t).zip)
 
 default: vet test
 
@@ -9,20 +15,18 @@ test:
 vet:
 	go vet $(PKG)
 
-pkg-deps:
-	go get github.com/mitchellh/gox
+build: $(TARGETS)
+dist: $(ARCHIVES)
 
-pkg: pkg-deps \
-	pkg/release/grpc-health_${VERSION}_linux_amd64.zip
-
-.PHONY: test vet errcheck deps pkg
+.PHONY: test vet errcheck deps build dist
 
 # ---------------------------------------------------------------------
 
-pkg/build/linux/amd64/grpc-health: cmd/grpc-health/main.go
-	mkdir -p $(dir $@)
-	gox -osarch="linux/amd64" -output $@ ./$(dir $<)
+bin/grpc-health-%.zip: bin/grpc-health-%
+	zip -j $@ $<
 
-pkg/release/grpc-health_${VERSION}_linux_amd64.zip: pkg/build/linux/amd64/grpc-health
-	mkdir -p $(dir $@)
-	zip -9 -j $@ $<
+bin/grpc-health-%: $(SRC)
+	@mkdir -p $(dir $@)
+	$(eval os := $(word 3, $(subst -, ,$@)))
+	$(eval arch := $(word 4, $(subst -, ,$@)))
+	CGO_ENABLED=0 GOOS=$(os) GOARCH=$(arch) go build -o $@ $(patsubst bin/%-$(os)-$(arch),cmd/%/main.go,$@)
