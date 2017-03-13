@@ -7,7 +7,7 @@ import (
 
 // UnaryServerInterceptorChain combines multiple grpc.UnaryServerInterceptor
 // functions into one chain.
-func UnaryServerInterceptorChain(fns ...grpc.UnaryServerInterceptor) grpc.UnaryServerInterceptor {
+func unaryServerInterceptorChain(fns ...grpc.UnaryServerInterceptor) grpc.UnaryServerInterceptor {
 	wrap := func(fn grpc.UnaryServerInterceptor, info *grpc.UnaryServerInfo, next grpc.UnaryHandler) grpc.UnaryHandler {
 		return func(ctx context.Context, req interface{}) (interface{}, error) {
 			return fn(ctx, req, info, next)
@@ -25,7 +25,7 @@ func UnaryServerInterceptorChain(fns ...grpc.UnaryServerInterceptor) grpc.UnaryS
 
 // StreamServerInterceptorChain combines multiple grpc.StreamServerInterceptor
 // functions into one chain.
-func StreamServerInterceptorChain(fns ...grpc.StreamServerInterceptor) grpc.StreamServerInterceptor {
+func streamServerInterceptorChain(fns ...grpc.StreamServerInterceptor) grpc.StreamServerInterceptor {
 	wrap := func(fn grpc.StreamServerInterceptor, info *grpc.StreamServerInfo, next grpc.StreamHandler) grpc.StreamHandler {
 		return func(srv interface{}, stream grpc.ServerStream) error {
 			return fn(srv, stream, info, next)
