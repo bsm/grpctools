@@ -16,9 +16,9 @@ func Dial(target string, opts *DialOptions) (*grpc.ClientConn, error) {
 // DialContext creates a client connection with specified context.
 func DialContext(ctx context.Context, target string, opts *DialOptions) (*grpc.ClientConn, error) {
 	if opts == nil {
-		opts = new(Options)
+		opts = new(DialOptions)
 	}
-	return grpc.Dial(ctx, target, opts.grpcDialOpts()...)
+	return grpc.DialContext(ctx, target, opts.grpcDialOpts()...)
 }
 
 // --------------------------------------------------------------------
@@ -30,10 +30,8 @@ type DialOptions struct {
 	// SkipBlock makes Dial non-blocking (Dial won't wait for connection to be up before returning).
 	SkipBlock bool
 
-	// LBAddr specifies github.com/bsm/grpclb balancer address, defaults to 127.0.0.1:8383.
+	// LBAddr specifies github.com/bsm/grpclb balancer address, optional (no load-balancing unless provided).
 	LBAddr string
-	// SkipLB disables load-balancing.
-	SkipLB bool
 
 	// BackoffConfig specifies backoff config, MaxDelay defaults to 30 seconds.
 	BackoffConfig grpc.BackoffConfig
@@ -50,24 +48,24 @@ func (o *DialOptions) grpcDialOpts() (opts []grpc.DialOption) {
 		opts = append(opts, grpc.WithBlock())
 	}
 
-	if !o.SkipLB {
-		lbAddr := o.LBAddr
-		if lbAddr == "" {
-			lbAddr = "127.0.0.1:8383"
-		}
+	if o.LBAddr != "" {
 		balancer := grpclb.PickFirst(&grpclb.Options{
-			Address: lbAddr,
+			Address: o.LBAddr,
 		})
 		opts = append(opts, grpc.WithBalancer(balancer))
 	}
 
 	if !o.SkipBackoff {
-		backoffCfg := o.BackoffConfig
-		if backoffCfg.MaxDelay == 0 {
-			backoffCfg.MaxDelay = 30 * time.Second
-		}
-		opts = append(opts, grpc.WithBackoffConfig(backoffCfg))
+		opts = append(opts, grpc.WithBackoffConfig(o.getBackoffConfig()))
 	}
 
 	return opts
+}
+
+func (o *DialOptions) getBackoffConfig() grpc.BackoffConfig {
+	c := o.BackoffConfig
+	if c.MaxDelay == 0 {
+		c.MaxDelay = 30 * time.Second
+	}
+	return c
 }
