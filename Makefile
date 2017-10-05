@@ -1,5 +1,5 @@
 SRC=$(shell find . -name '*.go' -not -path '*vendor*')
-PKG=$(shell glide nv)
+PKG=$(shell go list ./... | grep -v 'vendor')
 
 TARGET_PKG=$(patsubst cmd/%/main.go,bin/%,$(wildcard cmd/*/main.go))
 TARGET_OS=linux darwin
