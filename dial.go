@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"github.com/bsm/grpclb"
+	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
+	opentracing "github.com/opentracing/opentracing-go"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
@@ -29,6 +31,8 @@ type DialOptions struct {
 	SkipInsecure bool
 	// SkipBlock makes Dial non-blocking (Dial won't wait for connection to be up before returning).
 	SkipBlock bool
+	// SkipTracing disables tracing.
+	SkipTracing bool
 
 	// LBAddr specifies github.com/bsm/grpclb balancer address, optional (no load-balancing unless provided).
 	LBAddr string
@@ -46,6 +50,11 @@ func (o *DialOptions) grpcDialOpts() (opts []grpc.DialOption) {
 
 	if !o.SkipBlock {
 		opts = append(opts, grpc.WithBlock())
+	}
+
+	if !o.SkipTracing {
+		tracer := opentracing.GlobalTracer()
+		opts = append(opts, grpc.WithUnaryInterceptor(otgrpc.OpenTracingClientInterceptor(tracer)))
 	}
 
 	if o.LBAddr != "" {

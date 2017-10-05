@@ -6,6 +6,8 @@ import (
 
 	balancepb "github.com/bsm/grpclb/grpclb_backend_v1"
 	"github.com/bsm/grpclb/load"
+	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
+	opentracing "github.com/opentracing/opentracing-go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
@@ -67,6 +69,7 @@ type Options struct {
 	SkipCompression     bool
 	SkipLoadReporting   bool
 	SkipInstrumentation bool
+	SkipTracing         bool
 
 	UnaryInterceptors  []grpc.UnaryServerInterceptor
 	StreamInterceptors []grpc.StreamServerInterceptor
@@ -92,6 +95,11 @@ func (o *Options) grpcServerOpts(lrm LoadReportMeter) []grpc.ServerOption {
 	if !o.SkipInstrumentation {
 		uchain = append(uchain, DefaultInstrumenter.UnaryServerInterceptor)
 		schain = append(schain, DefaultInstrumenter.StreamServerInterceptor)
+	}
+
+	if !o.SkipTracing {
+		tracer := opentracing.GlobalTracer()
+		uchain = append(uchain, otgrpc.OpenTracingServerInterceptor(tracer))
 	}
 
 	if !o.SkipLoadReporting {
