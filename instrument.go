@@ -18,6 +18,25 @@ import (
 
 var rx = regexp.MustCompile(`[\w\-]+\=[\w\-]+`)
 
+var defaultCodeMap = map[codes.Code]int{
+	codes.OK:                 http.StatusOK,
+	codes.InvalidArgument:    http.StatusBadRequest,
+	codes.Unauthenticated:    http.StatusUnauthorized,
+	codes.PermissionDenied:   http.StatusForbidden,
+	codes.Unavailable:        http.StatusServiceUnavailable,
+	codes.Canceled:           http.StatusGone,
+	codes.FailedPrecondition: http.StatusPreconditionFailed,
+	codes.Aborted:            http.StatusPreconditionFailed,
+	codes.AlreadyExists:      http.StatusConflict,
+	codes.DeadlineExceeded:   http.StatusRequestTimeout,
+	codes.NotFound:           http.StatusNotFound,
+	codes.ResourceExhausted:  http.StatusTooManyRequests,
+	codes.OutOfRange:         http.StatusRequestedRangeNotSatisfiable,
+	codes.Unimplemented:      http.StatusNotImplemented,
+	codes.Internal:           http.StatusInternalServerError,
+	codes.DataLoss:           http.StatusInternalServerError,
+}
+
 // Instrumenter instances instrument RPC requests via
 // interceptors.
 type Instrumenter struct {
@@ -33,27 +52,14 @@ func NewInstrumenter(metric string, codeMap map[codes.Code]int) *Instrumenter {
 	if metric == "" {
 		metric = "rpc.request"
 	}
-	if len(codeMap) == 0 {
-		codeMap = map[codes.Code]int{
-			codes.OK:                 http.StatusOK,
-			codes.InvalidArgument:    http.StatusBadRequest,
-			codes.Unauthenticated:    http.StatusUnauthorized,
-			codes.PermissionDenied:   http.StatusForbidden,
-			codes.Unavailable:        http.StatusServiceUnavailable,
-			codes.Canceled:           http.StatusGone,
-			codes.FailedPrecondition: http.StatusPreconditionFailed,
-			codes.Aborted:            http.StatusPreconditionFailed,
-			codes.AlreadyExists:      http.StatusConflict,
-			codes.DeadlineExceeded:   http.StatusRequestTimeout,
-			codes.NotFound:           http.StatusNotFound,
-			codes.ResourceExhausted:  http.StatusTooManyRequests,
-			codes.OutOfRange:         http.StatusRequestedRangeNotSatisfiable,
-			codes.Unimplemented:      http.StatusNotImplemented,
-			codes.Internal:           http.StatusInternalServerError,
-			codes.DataLoss:           http.StatusInternalServerError,
+	if codeMap == nil {
+		codeMap = make(map[codes.Code]int, len(defaultCodeMap))
+	}
+	for c, h := range defaultCodeMap {
+		if _, ok := codeMap[c]; !ok {
+			codeMap[c] = h
 		}
 	}
-
 	return &Instrumenter{metric: metric, codeMap: codeMap}
 }
 
