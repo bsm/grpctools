@@ -1,7 +1,6 @@
 package grpctools
 
 import (
-	"net/http"
 	"regexp"
 	"runtime/debug"
 	"strconv"
@@ -13,54 +12,23 @@ import (
 	"github.com/bsm/rucksack/met"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 )
 
 var rx = regexp.MustCompile(`[\w\-]+\=[\w\-]+`)
 
-var defaultCodeMap = map[codes.Code]int{
-	codes.OK:                 http.StatusOK,
-	codes.InvalidArgument:    http.StatusBadRequest,
-	codes.Unauthenticated:    http.StatusUnauthorized,
-	codes.PermissionDenied:   http.StatusForbidden,
-	codes.Unavailable:        http.StatusServiceUnavailable,
-	codes.Canceled:           http.StatusGone,
-	codes.FailedPrecondition: http.StatusPreconditionFailed,
-	codes.Aborted:            http.StatusPreconditionFailed,
-	codes.AlreadyExists:      http.StatusConflict,
-	codes.DeadlineExceeded:   http.StatusRequestTimeout,
-	codes.NotFound:           http.StatusNotFound,
-	codes.ResourceExhausted:  http.StatusTooManyRequests,
-	codes.OutOfRange:         http.StatusRequestedRangeNotSatisfiable,
-	codes.Unimplemented:      http.StatusNotImplemented,
-	codes.Internal:           http.StatusInternalServerError,
-	codes.DataLoss:           http.StatusInternalServerError,
-}
-
 // Instrumenter instances instrument RPC requests via
 // interceptors.
-type Instrumenter struct {
-	metric  string
-	codeMap map[codes.Code]int
-}
+type Instrumenter struct{ metric string }
 
 // DefaultInstrumenter instruments via "rpc.request" metric
-var DefaultInstrumenter = NewInstrumenter("rpc.request", nil)
+var DefaultInstrumenter = NewInstrumenter("rpc.request")
 
 // NewInstrumenter inits a new instrumenter with a metric
-func NewInstrumenter(metric string, codeMap map[codes.Code]int) *Instrumenter {
+func NewInstrumenter(metric string) *Instrumenter {
 	if metric == "" {
 		metric = "rpc.request"
 	}
-	if codeMap == nil {
-		codeMap = make(map[codes.Code]int, len(defaultCodeMap))
-	}
-	for c, h := range defaultCodeMap {
-		if _, ok := codeMap[c]; !ok {
-			codeMap[c] = h
-		}
-	}
-	return &Instrumenter{metric: metric, codeMap: codeMap}
+	return &Instrumenter{metric: metric}
 }
 
 // UnaryInterceptor implements an grpc.UnaryServerInterceptor
@@ -85,11 +53,7 @@ func (i *Instrumenter) StreamServerInterceptor(srv interface{}, stream grpc.Serv
 
 func (i *Instrumenter) instrument(name string, err error, elapsed time.Duration) {
 	errtags := extractErrorTags(err)
-	status, ok := i.codeMap[grpc.Code(err)]
-	if !ok {
-		status = http.StatusTeapot
-	}
-
+	status := HTTPStatusFromError(err)
 	logger := log.WithField("status", status)
 	mtags := []string{
 		"rpc:" + name,
