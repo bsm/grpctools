@@ -2,12 +2,6 @@
 
 
 [[projects]]
-  name = "github.com/Sirupsen/logrus"
-  packages = ["."]
-  revision = "f006c2ac4710855cf0f916dd6b77acf6b048dc6e"
-  version = "v1.0.3"
-
-[[projects]]
   name = "github.com/bsm/grpclb"
   packages = [".","grpclb_backend_v1","grpclb_balancer_v1","load"]
   revision = "8ee3dbe8dee53600a5f95f474ddc27c2ed937a72"
@@ -27,9 +21,9 @@
 
 [[projects]]
   name = "github.com/bsm/rucksack"
-  packages = ["log","met"]
-  revision = "cdba7c8ef22b371bbd7d7509b133b6e2d80f5e27"
-  version = "v1.3.4"
+  packages = [".","log","met"]
+  revision = "bc4a07f1e73c5b0debb7300318db336a70204656"
+  version = "v2.0.0"
 
 [[projects]]
   branch = "master"
@@ -62,10 +56,22 @@
   version = "v1.0.2"
 
 [[projects]]
-  branch = "master"
-  name = "golang.org/x/crypto"
-  packages = ["ssh/terminal"]
-  revision = "9419663f5a44be8b34ca85f08abc5fe1be11f8a3"
+  name = "go.uber.org/atomic"
+  packages = ["."]
+  revision = "8474b86a5a6f79c443ce4b2992817ff32cf208b8"
+  version = "v1.3.1"
+
+[[projects]]
+  name = "go.uber.org/multierr"
+  packages = ["."]
+  revision = "3c4937480c32f4c13a875a1829af76c98ca3d40a"
+  version = "v1.1.0"
+
+[[projects]]
+  name = "go.uber.org/zap"
+  packages = [".","buffer","internal/bufferpool","internal/color","internal/exit","zapcore"]
+  revision = "35aad584952c3e7020db7b839f6b102de6271f89"
+  version = "v1.7.1"
 
 [[projects]]
   branch = "master"
@@ -76,7 +82,7 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
-  packages = ["unix","windows"]
+  packages = ["unix"]
   revision = "314a259e304ff91bd6985da2a7149bbf91237993"
 
 [[projects]]
@@ -106,6 +112,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e6fcf0f570fa59937b27339b0071043dbd1b436235172a94e155b6285d926c24"
+  inputs-digest = "1c631f1f080befccbd22cdf4ea8628d4ee85e7144e31ca0e546051c291ba3b1a"
   solver-name = "gps-cdcl"
   solver-version = 1
