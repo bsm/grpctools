@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/bsm/rucksack/log"
 	"github.com/bsm/rucksack/met"
+	"go.uber.org/zap"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
@@ -54,7 +54,7 @@ func (i *Instrumenter) StreamServerInterceptor(srv interface{}, stream grpc.Serv
 func (i *Instrumenter) instrument(name string, err error, elapsed time.Duration) {
 	errtags := extractErrorTags(err)
 	status := HTTPStatusFromError(err)
-	logger := log.WithField("status", status)
+	logger := log.L().With(zap.String("rpc", name), zap.Int("status", status))
 	mtags := []string{
 		"rpc:" + name,
 		"status:" + strconv.Itoa(status),
@@ -62,17 +62,17 @@ func (i *Instrumenter) instrument(name string, err error, elapsed time.Duration)
 	met.RatePerMin(i.metric, mtags).Update(1)
 
 	if status < 500 {
-		logger.Infof("%s in %.3fs", name, elapsed.Seconds())
+		logger.Info("completed", zap.Duration("elapsed", elapsed))
 		met.Timer(i.metric+".time", mtags).Update(elapsed)
 	} else if err != nil {
-		loggerWithTags(logger, errtags).Errorf("%s failed with %s", name, err.Error())
+		loggerWithTags(logger, errtags).Error("failed", zap.Error(err))
 		met.RatePerMin(i.metric+".error", append(mtags, errtags...)).Update(1)
 	}
 }
 
 func (i *Instrumenter) recover(name string) {
 	if r := recover(); r != nil {
-		log.WithField("rpc", name).Errorf("panic: %v\n%v", r, debug.Stack())
+		log.L().With(zap.String("rpc", name)).Sugar().Errorf("panic: %v\n%v", r, debug.Stack())
 		met.RatePerMin(i.metric+".error", []string{
 			"rpc:" + name,
 			"status:500",
@@ -93,11 +93,11 @@ func extractErrorTags(err error) []string {
 	return tags
 }
 
-func loggerWithTags(ent *logrus.Entry, tags []string) *logrus.Entry {
+func loggerWithTags(l *zap.Logger, tags []string) *zap.Logger {
 	for _, t := range tags {
 		if parts := strings.SplitN(t, ":", 2); len(parts) == 2 {
-			ent = ent.WithField(parts[0], parts[1])
+			l = l.With(zap.String(parts[0], parts[1]))
 		}
 	}
-	return ent
+	return l
 }
