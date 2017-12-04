@@ -54,7 +54,7 @@ func (i *Instrumenter) StreamServerInterceptor(srv interface{}, stream grpc.Serv
 func (i *Instrumenter) instrument(name string, err error, elapsed time.Duration) {
 	errtags := extractErrorTags(err)
 	status := HTTPStatusFromError(err)
-	logger := log.L().With(zap.Int("status", status)).Sugar()
+	logger := log.L().With(zap.String("rpc", name), zap.Int("status", status))
 	mtags := []string{
 		"rpc:" + name,
 		"status:" + strconv.Itoa(status),
@@ -62,10 +62,10 @@ func (i *Instrumenter) instrument(name string, err error, elapsed time.Duration)
 	met.RatePerMin(i.metric, mtags).Update(1)
 
 	if status < 500 {
-		logger.Infof("%s in %.3fs", name, elapsed.Seconds())
+		logger.Info("completed", zap.Duration("elapsed", elapsed))
 		met.Timer(i.metric+".time", mtags).Update(elapsed)
 	} else if err != nil {
-		loggerWithTags(logger, errtags).Errorf("%s failed with %s", name, err.Error())
+		loggerWithTags(logger, errtags).Error("failed", zap.Error(err))
 		met.RatePerMin(i.metric+".error", append(mtags, errtags...)).Update(1)
 	}
 }
@@ -93,7 +93,7 @@ func extractErrorTags(err error) []string {
 	return tags
 }
 
-func loggerWithTags(l *zap.SugaredLogger, tags []string) *zap.SugaredLogger {
+func loggerWithTags(l *zap.Logger, tags []string) *zap.Logger {
 	for _, t := range tags {
 		if parts := strings.SplitN(t, ":", 2); len(parts) == 2 {
 			l = l.With(zap.String(parts[0], parts[1]))
