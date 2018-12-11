@@ -1,9 +1,6 @@
 language: go
 go:
-  - 1.9.x
-  - 1.8.x
-install:
-  - go get -u github.com/golang/dep/cmd/dep
-  - dep ensure -v
-script:
-  - make default
+  - 1.11.x
+env:
+  - GO111MODULE=on
+
