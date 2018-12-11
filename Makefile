@@ -27,7 +27,7 @@ bin/grpc-health-%.zip: bin/grpc-health-%
 	zip -j $@ $<
 
 bin/grpc-health-%.tgz: bin/grpc-health-%
-	tar czf --strip-components=1 $@ $<
+	tar -czf $@ -C $(dir $<) $(notdir $<)
 
 bin/grpc-health-%: $(SRC)
 	@mkdir -p $(dir $@)
