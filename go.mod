@@ -1,7 +1,7 @@
 module github.com/bsm/grpctools
 
 require (
-	github.com/bsm/grpclb v0.5.2
+	github.com/bsm/grpclb v0.5.3
 	github.com/bsm/instruments v1.3.6 // indirect
 	github.com/bsm/rucksack v3.0.0+incompatible
 	github.com/grpc-ecosystem/grpc-opentracing v0.0.0-20180507213350-8e809c8a8645
