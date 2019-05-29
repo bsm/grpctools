@@ -1,6 +1,7 @@
 package grpctools
 
 import (
+	"context"
 	"regexp"
 	"runtime/debug"
 	"strconv"
@@ -10,7 +11,6 @@ import (
 	"github.com/bsm/rucksack/log"
 	"github.com/bsm/rucksack/met"
 	"go.uber.org/zap"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 
@@ -31,7 +31,7 @@ func NewInstrumenter(metric string) *Instrumenter {
 	return &Instrumenter{metric: metric}
 }
 
-// UnaryInterceptor implements an grpc.UnaryServerInterceptor
+// UnaryServerInterceptor implements an grpc.UnaryServerInterceptor
 func (i *Instrumenter) UnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	defer i.recover(info.FullMethod)
 

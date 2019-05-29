@@ -1,12 +1,9 @@
 package grpctools
 
 import (
+	"context"
 	"time"
 
-	"github.com/bsm/grpclb"
-	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
-	opentracing "github.com/opentracing/opentracing-go"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 
@@ -27,19 +24,24 @@ func DialContext(ctx context.Context, target string, opts *DialOptions) (*grpc.C
 
 // DialOptions represent dial options.
 type DialOptions struct {
-	// SkipInsecure enables transport security.
+	// Enables transport security.
 	SkipInsecure bool
-	// SkipBlock makes Dial non-blocking (Dial won't wait for connection to be up before returning).
+	// Makes Dial non-blocking (Dial won't wait for connection to be up before returning).
 	SkipBlock bool
-	// SkipTracing disables tracing.
-	SkipTracing bool
 
-	// LBAddr specifies github.com/bsm/grpclb balancer address, optional (no load-balancing unless provided).
-	LBAddr string
+	// Unary client interceptors.
+	UnaryInterceptors []grpc.UnaryClientInterceptor
 
-	// BackoffConfig specifies backoff config, MaxDelay defaults to 30 seconds.
+	// Stream client interceptors.
+	StreamInterceptors []grpc.StreamClientInterceptor
+
+	// Uses a load balancer, if provided.
+	Balancer grpc.Balancer
+
+	// Specifies backoff config, MaxDelay defaults to 30 seconds.
 	BackoffConfig grpc.BackoffConfig
-	// SkipBackoff disables backoff.
+
+	// Disables backoff.
 	SkipBackoff bool
 }
 
@@ -52,16 +54,15 @@ func (o *DialOptions) grpcDialOpts() (opts []grpc.DialOption) {
 		opts = append(opts, grpc.WithBlock())
 	}
 
-	if !o.SkipTracing {
-		tracer := opentracing.GlobalTracer()
-		opts = append(opts, grpc.WithUnaryInterceptor(otgrpc.OpenTracingClientInterceptor(tracer)))
+	for _, cis := range o.UnaryInterceptors {
+		opts = append(opts, grpc.WithUnaryInterceptor(cis))
+	}
+	for _, cis := range o.StreamInterceptors {
+		opts = append(opts, grpc.WithStreamInterceptor(cis))
 	}
 
-	if o.LBAddr != "" {
-		balancer := grpclb.PickFirst(&grpclb.Options{
-			Address: o.LBAddr,
-		})
-		opts = append(opts, grpc.WithBalancer(balancer))
+	if o.Balancer != nil {
+		opts = append(opts, grpc.WithBalancer(o.Balancer))
 	}
 
 	if !o.SkipBackoff {

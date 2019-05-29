@@ -2,12 +2,7 @@ package grpctools
 
 import (
 	"net"
-	"time"
 
-	balancepb "github.com/bsm/grpclb/grpclb_backend_v1"
-	"github.com/bsm/grpclb/load"
-	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
-	opentracing "github.com/opentracing/opentracing-go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
@@ -16,7 +11,6 @@ import (
 // Server embeds a standard grpc Server with a healthcheck
 type Server struct {
 	*grpc.Server
-	LoadReportMeter
 
 	name   string
 	addr   string
@@ -29,16 +23,13 @@ func NewServer(name string, addr string, opts *Options) *Server {
 		opts = new(Options)
 	}
 
-	lrm := load.NewRateReporter(time.Minute)
 	srv := &Server{
-		Server:          grpc.NewServer(opts.grpcServerOpts(lrm)...),
-		LoadReportMeter: lrm,
-		name:            name,
-		addr:            addr,
-		health:          health.NewServer(),
+		Server: grpc.NewServer(opts.grpcServerOpts()...),
+		name:   name,
+		addr:   addr,
+		health: health.NewServer(),
 	}
 	healthpb.RegisterHealthServer(srv.Server, srv.health)
-	balancepb.RegisterLoadReportServer(srv.Server, lrm)
 	return srv
 }
 
@@ -62,20 +53,18 @@ func (s *Server) ListenAndServe() error {
 type Options struct {
 	// MaxConcurrentStreams will apply a limit on the number of concurrent streams to each ServerTransport.
 	MaxConcurrentStreams uint32
-	// MaxMsgSize sets the max message size in bytes for inbound mesages.
+	// MaxMessageSize sets the max message size in bytes for inbound mesages.
 	// If this is not set, gRPC uses the default 4MB.
-	MaxMsgSize int
+	MaxMessageSize int
 
 	SkipCompression     bool
-	SkipLoadReporting   bool
 	SkipInstrumentation bool
-	SkipTracing         bool
 
 	UnaryInterceptors  []grpc.UnaryServerInterceptor
 	StreamInterceptors []grpc.StreamServerInterceptor
 }
 
-func (o *Options) grpcServerOpts(lrm LoadReportMeter) []grpc.ServerOption {
+func (o *Options) grpcServerOpts() []grpc.ServerOption {
 	opts := make([]grpc.ServerOption, 0)
 	uchain := append([]grpc.UnaryServerInterceptor{}, o.UnaryInterceptors...)
 	schain := append([]grpc.StreamServerInterceptor{}, o.StreamInterceptors...)
@@ -84,8 +73,8 @@ func (o *Options) grpcServerOpts(lrm LoadReportMeter) []grpc.ServerOption {
 		opts = append(opts, grpc.MaxConcurrentStreams(o.MaxConcurrentStreams))
 	}
 
-	if o.MaxMsgSize > 0 {
-		opts = append(opts, grpc.MaxMsgSize(o.MaxMsgSize))
+	if o.MaxMessageSize > 0 {
+		opts = append(opts, grpc.MaxMsgSize(o.MaxMessageSize))
 	}
 
 	if !o.SkipCompression {
@@ -95,16 +84,6 @@ func (o *Options) grpcServerOpts(lrm LoadReportMeter) []grpc.ServerOption {
 	if !o.SkipInstrumentation {
 		uchain = append(uchain, DefaultInstrumenter.UnaryServerInterceptor)
 		schain = append(schain, DefaultInstrumenter.StreamServerInterceptor)
-	}
-
-	if !o.SkipTracing {
-		tracer := opentracing.GlobalTracer()
-		uchain = append(uchain, otgrpc.OpenTracingServerInterceptor(tracer))
-	}
-
-	if !o.SkipLoadReporting {
-		uchain = append(uchain, UnaryLoadReporter(lrm))
-		schain = append(schain, StreamLoadReporter(lrm))
 	}
 
 	if len(uchain) != 0 {
