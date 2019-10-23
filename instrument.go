@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bsm/rucksack/log"
-	"github.com/bsm/rucksack/met"
+	"github.com/bsm/rucksack/v4/log"
+	"github.com/bsm/rucksack/v4/met"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
