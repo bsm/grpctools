@@ -18,13 +18,14 @@ type Server struct {
 }
 
 // NewServer returns a new Server instance.
-func NewServer(name string, addr string, opts *Options) *Server {
+func NewServer(name string, addr string, opts *Options, extra ...grpc.ServerOption) *Server {
 	if opts == nil {
 		opts = new(Options)
 	}
 
+	full := append(opts.grpcServerOpts(), extra...)
 	srv := &Server{
-		Server: grpc.NewServer(opts.grpcServerOpts()...),
+		Server: grpc.NewServer(full...),
 		name:   name,
 		addr:   addr,
 		health: health.NewServer(),
@@ -51,14 +52,8 @@ func (s *Server) ListenAndServe() error {
 
 // Options represent server options
 type Options struct {
-	// MaxConcurrentStreams will apply a limit on the number of concurrent streams to each ServerTransport.
 	MaxConcurrentStreams uint32
-	// MaxMessageSize sets the max message size in bytes for inbound mesages.
-	// If this is not set, gRPC uses the default 4MB.
-	MaxMessageSize int
-
-	SkipCompression     bool
-	SkipInstrumentation bool
+	SkipInstrumentation  bool
 
 	UnaryInterceptors  []grpc.UnaryServerInterceptor
 	StreamInterceptors []grpc.StreamServerInterceptor
@@ -71,14 +66,6 @@ func (o *Options) grpcServerOpts() []grpc.ServerOption {
 
 	if o.MaxConcurrentStreams > 0 {
 		opts = append(opts, grpc.MaxConcurrentStreams(o.MaxConcurrentStreams))
-	}
-
-	if o.MaxMessageSize > 0 {
-		opts = append(opts, grpc.MaxMsgSize(o.MaxMessageSize))
-	}
-
-	if !o.SkipCompression {
-		opts = append(opts, grpc.RPCDecompressor(grpc.NewGZIPDecompressor()))
 	}
 
 	if !o.SkipInstrumentation {

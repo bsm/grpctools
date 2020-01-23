@@ -2,22 +2,23 @@ package grpctools
 
 import (
 	"context"
-	"time"
 
 	"google.golang.org/grpc"
 )
 
 // Dial creates a client connection.
-func Dial(target string, opts *DialOptions) (*grpc.ClientConn, error) {
-	return DialContext(context.Background(), target, opts)
+func Dial(target string, opts *DialOptions, extra ...grpc.DialOption) (*grpc.ClientConn, error) {
+	return DialContext(context.Background(), target, opts, extra...)
 }
 
 // DialContext creates a client connection with specified context.
-func DialContext(ctx context.Context, target string, opts *DialOptions) (*grpc.ClientConn, error) {
+func DialContext(ctx context.Context, target string, opts *DialOptions, extra ...grpc.DialOption) (*grpc.ClientConn, error) {
 	if opts == nil {
 		opts = new(DialOptions)
 	}
-	return grpc.DialContext(ctx, target, opts.grpcDialOpts()...)
+
+	full := append(opts.grpcDialOpts(), extra...)
+	return grpc.DialContext(ctx, target, full...)
 }
 
 // --------------------------------------------------------------------
@@ -26,6 +27,7 @@ func DialContext(ctx context.Context, target string, opts *DialOptions) (*grpc.C
 type DialOptions struct {
 	// Enables transport security.
 	SkipInsecure bool
+
 	// Makes Dial non-blocking (Dial won't wait for connection to be up before returning).
 	SkipBlock bool
 
@@ -34,15 +36,6 @@ type DialOptions struct {
 
 	// Stream client interceptors.
 	StreamInterceptors []grpc.StreamClientInterceptor
-
-	// Uses a load balancer, if provided.
-	Balancer grpc.Balancer
-
-	// Specifies backoff config, MaxDelay defaults to 30 seconds.
-	BackoffConfig grpc.BackoffConfig
-
-	// Disables backoff.
-	SkipBackoff bool
 }
 
 func (o *DialOptions) grpcDialOpts() (opts []grpc.DialOption) {
@@ -54,28 +47,13 @@ func (o *DialOptions) grpcDialOpts() (opts []grpc.DialOption) {
 		opts = append(opts, grpc.WithBlock())
 	}
 
-	for _, cis := range o.UnaryInterceptors {
-		opts = append(opts, grpc.WithUnaryInterceptor(cis))
-	}
-	for _, cis := range o.StreamInterceptors {
-		opts = append(opts, grpc.WithStreamInterceptor(cis))
+	if chain := append([]grpc.UnaryClientInterceptor{}, o.UnaryInterceptors...); len(chain) != 0 {
+		opts = append(opts, grpc.WithUnaryInterceptor(unaryClientInterceptorChain(chain...)))
 	}
 
-	if o.Balancer != nil {
-		opts = append(opts, grpc.WithBalancer(o.Balancer))
-	}
-
-	if !o.SkipBackoff {
-		opts = append(opts, grpc.WithBackoffConfig(o.getBackoffConfig()))
+	if chain := append([]grpc.StreamClientInterceptor{}, o.StreamInterceptors...); len(chain) != 0 {
+		opts = append(opts, grpc.WithStreamInterceptor(streamClientInterceptorChain(chain...)))
 	}
 
 	return opts
-}
-
-func (o *DialOptions) getBackoffConfig() grpc.BackoffConfig {
-	c := o.BackoffConfig
-	if c.MaxDelay == 0 {
-		c.MaxDelay = 30 * time.Second
-	}
-	return c
 }
