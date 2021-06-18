@@ -3,8 +3,8 @@ package grpctools
 import (
 	"google.golang.org/grpc"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	. "github.com/bsm/ginkgo"
+	. "github.com/bsm/gomega"
 )
 
 var _ = Describe("Server", func() {

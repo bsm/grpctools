@@ -3,8 +3,8 @@ package grpctools
 import (
 	"net/http"
 
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // HTTPStatus returns a http stats from a grpc error code
@@ -50,4 +50,4 @@ func HTTPStatus(c codes.Code) int {
 }
 
 // HTTPStatusFromError returns a http stats from a grpc error code
-func HTTPStatusFromError(err error) int { return HTTPStatus(grpc.Code(err)) }
+func HTTPStatusFromError(err error) int { return HTTPStatus(status.Code(err)) }

@@ -1,12 +1,12 @@
-default: vet test
+default: test
 
 test:
 	go test ./...
 
-vet:
-	go vet ./...
-
 release:
 	goreleaser --rm-dist
 
-.PHONY: test vet release
+staticcheck:
+	staticcheck ./...
+
+.PHONY: test  release
