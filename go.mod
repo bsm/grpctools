@@ -1,19 +1,16 @@
 module github.com/bsm/grpctools
 
-require (
-	github.com/bsm/rucksack/v4 v4.0.1
-	github.com/onsi/ginkgo v1.10.1
-	github.com/onsi/gomega v1.7.0
-	go.uber.org/atomic v1.5.1 // indirect
-	go.uber.org/multierr v1.4.0 // indirect
-	go.uber.org/zap v1.13.0
-	golang.org/x/lint v0.0.0-20191125180803-fdd1cda4f05f // indirect
-	golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa // indirect
-	golang.org/x/sys v0.0.0-20200122134326-e047566fdf82 // indirect
-	golang.org/x/tools v0.0.0-20200123022218-593de606220b // indirect
-	google.golang.org/genproto v0.0.0-20200122232147-0452cf42e150
-	google.golang.org/grpc v1.26.0
-	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
-)
+go 1.15
 
-go 1.13
+require (
+	github.com/bsm/ginkgo v1.16.4
+	github.com/bsm/gomega v1.13.0
+	github.com/bsm/rucksack/v4 v4.0.3
+	github.com/kr/pretty v0.1.0 // indirect
+	go.uber.org/zap v1.17.0
+	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
+	golang.org/x/sys v0.0.0-20210616094352-59db8d763f22 // indirect
+	google.golang.org/genproto v0.0.0-20210617175327-b9e0b3197ced
+	google.golang.org/grpc v1.38.0
+	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
+)

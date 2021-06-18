@@ -39,13 +39,15 @@ func main() {
 func run() int {
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
-		grpc.WithTimeout(flags.Timeout),
 	}
 	if flags.EnableTLS {
 		opts[0] = grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, ""))
 	}
 
-	conn, err := grpc.Dial(flags.Addr, opts...)
+	ctx, cancel := context.WithTimeout(context.Background(), flags.Timeout)
+	defer cancel()
+
+	conn, err := grpc.DialContext(ctx, flags.Addr, opts...)
 	if err != nil {
 		fmt.Println(err)
 		return 1

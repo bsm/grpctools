@@ -5,6 +5,6 @@ import (
 )
 
 // SetLogger is a proxy to grpclog.SetLogger
-func SetLogger(logger grpclog.Logger) {
-	grpclog.SetLogger(logger)
+func SetLogger(logger grpclog.LoggerV2) {
+	grpclog.SetLoggerV2(logger)
 }
