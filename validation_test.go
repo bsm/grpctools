@@ -1,49 +1,70 @@
 package grpctools
 
 import (
-	. "github.com/bsm/ginkgo"
-	. "github.com/bsm/gomega"
+	"reflect"
+	"sort"
+	"testing"
+
 	"google.golang.org/grpc/codes"
 )
 
-var _ = Describe("VErrors", func() {
-	var subject VErrors
+func TestVErrors(t *testing.T) {
+	var verr VErrors
+	verr = verr.Reset()
+	verr = verr.Append("name", "is required")
+	verr = verr.Append("name", "must be 5 chars")
+	verr = verr.Append("external_id", "is taken")
 
-	BeforeEach(func() {
-		subject = subject.Reset()
-		subject = subject.Append("name", "is required")
-		subject = subject.Append("name", "must be 5 chars")
-		subject = subject.Append("external_id", "is taken")
-	})
-
-	It("should add errors", func() {
-		Expect(subject).To(Equal(VErrors{
+	t.Run("Append", func(t *testing.T) {
+		got := verr
+		exp := VErrors{
 			{Field: "name", Description: "is required"},
 			{Field: "name", Description: "must be 5 chars"},
 			{Field: "external_id", Description: "is taken"},
-		}))
+		}
+		if !reflect.DeepEqual(exp, got) {
+			t.Fatalf("expected %v, got %v", exp, got)
+		}
 	})
 
-	It("should build messages", func() {
-		Expect(subject.Messages()).To(ConsistOf(
+	t.Run("Messages", func(t *testing.T) {
+		got := verr.Messages()
+		sort.Strings(got)
+
+		exp := []string{
+			"external_id: is taken",
 			"name: is required",
 			"name: must be 5 chars",
-			"external_id: is taken",
-		))
+		}
+		if !reflect.DeepEqual(exp, got) {
+			t.Fatalf("expected %v, got %v", exp, got)
+		}
 	})
 
-	It("should export status", func() {
-		sts := subject.Status(codes.InvalidArgument, "custom")
-		Expect(sts.Err()).To(MatchError(`rpc error: code = InvalidArgument desc = custom`))
+	t.Run("Status", func(t *testing.T) {
+		sts := verr.Status(codes.InvalidArgument, "custom")
+		got := sts.Err().Error()
+
+		if exp := `rpc error: code = InvalidArgument desc = custom`; exp != got {
+			t.Fatalf("expected %v, got %v", exp, got)
+		}
 	})
 
-	It("should parse from status", func() {
-		sts := subject.Status(codes.InvalidArgument, "custom")
-		Expect(VErrorsFromStatus(sts).Messages()).To(Equal(subject.Messages()))
+	t.Run("VErrorsFromStatus", func(t *testing.T) {
+		sts := verr.Status(codes.InvalidArgument, "custom")
+		got := VErrorsFromStatus(sts).Messages()
+
+		if exp := verr.Messages(); !reflect.DeepEqual(exp, got) {
+			t.Fatalf("expected %v, got %v", exp, got)
+		}
 	})
 
-	It("should convert from error", func() {
-		sts := subject.Status(codes.InvalidArgument, "custom")
-		Expect(VErrorsConvert(sts.Err()).Messages()).To(Equal(subject.Messages()))
+	t.Run("VErrorsConvert", func(t *testing.T) {
+		sts := verr.Status(codes.InvalidArgument, "custom")
+		got := VErrorsConvert(sts.Err()).Messages()
+
+		if exp := verr.Messages(); !reflect.DeepEqual(exp, got) {
+			t.Fatalf("expected %v, got %v", exp, got)
+		}
 	})
-})
+}

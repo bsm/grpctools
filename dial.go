@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 // Dial creates a client connection.
@@ -40,7 +41,7 @@ type DialOptions struct {
 
 func (o *DialOptions) grpcDialOpts() (opts []grpc.DialOption) {
 	if !o.SkipInsecure {
-		opts = append(opts, grpc.WithInsecure())
+		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	}
 
 	if !o.SkipBlock {

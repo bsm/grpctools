@@ -6,7 +6,7 @@ test:
 release:
 	goreleaser --rm-dist
 
-staticcheck:
-	staticcheck ./...
+lint:
+	golangci-lint run
 
-.PHONY: test  release
+.PHONY: test lint release
