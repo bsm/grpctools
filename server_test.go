@@ -1,25 +1,22 @@
 package grpctools
 
 import (
-	"google.golang.org/grpc"
+	"reflect"
+	"testing"
 
-	. "github.com/bsm/ginkgo"
-	. "github.com/bsm/gomega"
+	"google.golang.org/grpc"
 )
 
-var _ = Describe("Server", func() {
-	var subject *Server
+func TestServer(t *testing.T) {
+	srv := NewServer("test", "127.0.0.1:8080", nil)
+	defer srv.Stop()
 
-	BeforeEach(func() {
-		subject = NewServer("test", "127.0.0.1:8080", nil)
-	})
+	if sub := srv.Server; sub == nil {
+		t.Errorf("expected %v not to be nil", sub)
+	}
 
-	AfterEach(func() {
-		subject.Stop()
-	})
-
-	It("should be a gRPC server", func() {
-		Expect(subject.Server).To(BeAssignableToTypeOf(&grpc.Server{}))
-		Expect(subject.Server).NotTo(BeNil())
-	})
-})
+	exp := reflect.TypeOf(&grpc.Server{})
+	if got := reflect.TypeOf(srv.Server); exp != got {
+		t.Errorf("expected %v, got %v", exp, got)
+	}
+}

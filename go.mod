@@ -1,16 +1,22 @@
 module github.com/bsm/grpctools
 
-go 1.15
+go 1.17
 
 require (
-	github.com/bsm/ginkgo v1.16.4
-	github.com/bsm/gomega v1.13.0
-	github.com/bsm/rucksack/v4 v4.0.3
-	github.com/kr/pretty v0.1.0 // indirect
-	go.uber.org/zap v1.17.0
-	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
-	golang.org/x/sys v0.0.0-20210616094352-59db8d763f22 // indirect
-	google.golang.org/genproto v0.0.0-20210617175327-b9e0b3197ced
-	google.golang.org/grpc v1.38.0
-	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
+	github.com/bsm/rucksack/v4 v4.0.4
+	go.uber.org/zap v1.21.0
+	google.golang.org/genproto v0.0.0-20220602131408-e326c6e8e9c8
+	google.golang.org/grpc v1.47.0
+)
+
+require (
+	github.com/bsm/histogram/v3 v3.0.2 // indirect
+	github.com/bsm/instruments v1.4.0 // indirect
+	github.com/golang/protobuf v1.5.2 // indirect
+	go.uber.org/atomic v1.9.0 // indirect
+	go.uber.org/multierr v1.8.0 // indirect
+	golang.org/x/net v0.0.0-20220531201128-c960675eff93 // indirect
+	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
+	golang.org/x/text v0.3.7 // indirect
+	google.golang.org/protobuf v1.28.0 // indirect
 )
